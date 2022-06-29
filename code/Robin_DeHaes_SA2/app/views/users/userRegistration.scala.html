@@ -1,0 +1,65 @@
+@* View showing a registration page/
+ * - registerForm: the registration form
+ * - postURL: the URL used for form submission
+ *@
+@(registerForm: Form[models.User], postUrl: Call)(implicit request: RequestHeader, messagesProvider: MessagesProvider, flash: Flash, session: Session)
+
+@main("User Registration") {
+    <div id="user-registration-form-wrapper" class="main-form-wrapper container">
+
+        <h2>REGISTER</h2>
+
+        @* General messages can be shown through flashing *@
+        <div class="global-form-messages">
+        @request.flash.data.map { case (name, value) =>
+            <div class="global-form-message global-form-@name.toLowerCase()">
+                @value
+            </div>
+        }
+        </div>
+
+        @* Global errors are not tied to any particular form field *@
+        @if(registerForm.hasGlobalErrors) {
+            <div class="global-form-errors">
+                ERRORS:
+                @registerForm.globalErrors.map { error: FormError =>
+                    <div class="global-error">
+                        @error.message
+                    </div>
+                }
+            </div>
+        }
+
+        @* registration form with CSRF *@
+        @b3.vertical.formCSRF(postUrl,
+            Symbol("id") -> "user-registration-form") { implicit vfc =>
+
+            @b3.text(
+                registerForm("username"),
+                Symbol("label") -> "username",
+                Symbol("placeholder") -> "username",
+                Symbol("id") -> "username",
+                Symbol("size") -> 60,
+                '_label -> "Username",
+            )
+
+            @b3.password(
+                registerForm("password"),
+                Symbol("label") -> "password",
+                Symbol("placeholder") -> "password",
+                Symbol("id") -> "password",
+                Symbol("size") -> 60,
+                '_label -> "Password",
+            )
+
+            <div class="form-btns-wrapper">
+            @b3.submit(
+                '_class -> "submit-wrapper", // form-group class
+                'class -> "btn btn-primary btn-submit" // submit button class
+            ){ Register }
+            </div>
+        }
+
+    </div>
+}
+

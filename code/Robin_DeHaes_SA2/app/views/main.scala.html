@@ -1,0 +1,85 @@
+@*
+* Main template that handles the rendering of the page header and body tags. It takes
+* four arguments:
+* - title: a 'String' for the title of the page
+* - showTitle: a Boolean stating whether the title should visually be shown on the page
+* - scripts: Any additional scripts to be included on the page
+* - content: an 'Html' object to insert into the body of the page.
+*@
+@(title: String, showTitle: Boolean = false, scripts: Html = Html(""))(content: Html)(implicit request: RequestHeader, session: Session)
+
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <title>The Social Student</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="@routes.Assets.versioned("css/bootstrap.min.css")" rel="stylesheet" id="bootstrap-css">
+        <link rel="stylesheet" media="screen" href='@routes.Assets.versioned("css/main.css")'>
+        <script src="@routes.Assets.versioned("js/jquery-3.6.0.min.js")"></script>
+        <script src="@routes.Assets.versioned("js/bootstrap.min.js")"></script>
+
+        @* jsRoutes used in AJAX calls *@
+        <script type="text/javascript" src="@routes.JavaScriptRouteController.javascriptRoutes"></script>
+
+        <script src="@routes.Assets.versioned("js/main.js")"></script>
+
+        @* add any additional scripts passed via the view's arguments *@
+        @scripts
+    </head>
+    <body>
+        <div class="container-fluid">
+            <nav class="navbar navbar-default">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#main-navbar-collapse" aria-expanded="false">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        @if(UserSession.loggedIn(session)) {
+                            <a class="navbar-brand" href="@routes.HomeController.index()">Explore</a>
+                        }
+                    </div>
+
+                    <div class="collapse navbar-collapse" id="main-navbar-collapse">
+                        <ul class="nav navbar-nav navbar-right">
+                        @* change the available navigation links based on the authentication status of the current user *@
+                        @if(UserSession.loggedIn(session)) {
+                            <li class="nav-item"><a href="@routes.PostController.newPost()">Share a picture</a></li>
+                            <li><a href="@routes.UserController.showProfile(UserSession.getCurrentUserName(session))">Profile</a></li>
+                            <li class="nav-item"><a href="@routes.AuthenticationController.logout()">Logout</a></li>
+                        } else {
+                            <li class="nav-item"><a href="@routes.UserController.showRegistrationForm()">Register</a></li>
+                            <li class="nav-item"><a href="@routes.AuthenticationController.showLoginForm()">Login</a></li>
+                        }
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+
+        <h1>The Social Student</h1>
+        @if(showTitle) {
+            <h3 class="subheader">@title</h3>
+        }
+
+        @* Flashing does not provide support for complex ajax requests,
+           so a query string can be used to show a message in that case.
+           The string will automatically be URI decoded.
+        *@
+         @if(request.getQueryString(Global.QUERY_MESSAGE_KEY)){
+             <div class="global-messages">
+                 <div class="global-message global-info">
+                     @request.getQueryString(Global.QUERY_MESSAGE_KEY)
+                 </div>
+             </div>
+         }else{}
+
+        @* show the supplied HTML content from the calling view *@
+        @content
+
+    </body>
+
+</html>

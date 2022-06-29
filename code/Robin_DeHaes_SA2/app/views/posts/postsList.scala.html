@@ -1,0 +1,25 @@
+@* View showing a list of posts
+* - postsList: the list of posts to show
+* - maxComments: the maximum number of comments to show per post
+*@
+@(postsList: List[Post], maxComments: Int)(implicit request: RequestHeader, messagesProvider: MessagesProvider, flash: Flash, session: Session)
+
+@if(postsList.nonEmpty) {
+    @for(post <- postsList) {
+        @posts.postSummarized(post, maxComments)
+    }
+} else {
+    @* message in case no (visible) posts are available, mostly already taken care of in the calling view
+       but provided as fallback *@
+    <div class="no-posts-message">
+        There are currently no posts for you to view.
+        @if(!UserSession.loggedIn(session)) {
+            <div class="login-register">
+                <a href="@routes.UserController.showRegistrationForm()">Registering</a>
+                and/or
+                <a href="@routes.AuthenticationController.showLoginForm()">logging in</a>
+                might allow you to view more posts.
+            </div>
+        }
+    </div>
+}

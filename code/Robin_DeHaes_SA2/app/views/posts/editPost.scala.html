@@ -1,0 +1,225 @@
+@* View showing a form for editing a post
+* - postForm: the form for editing the post
+* - postUrl: the URL used for form submission
+* - audienceOptions: the options available in the audienceOption options field (i.e. the audience options to choose from)
+* - userOptions: the options available in the audienceOption audience field (i.e. the users to choose from)
+* - addDeleteBtn: boolean indicating whether a delete button should be added to the form
+* - oldPicturePath: the path to the old post picture (used for showing the old image in the form)
+*@
+@(postForm: Form[Post], postUrl: Call,
+        audienceOptions: List[(String, String)], userOptions: List[(String, String)],
+        addDeleteBtn : Boolean = false, oldPicturePath : String = "")(implicit request: RequestHeader, messagesProvider: MessagesProvider, flash: Flash, session: Session)
+
+@scripts = {
+    <script type="text/javascript">
+            /* Function to enable/disable audience selection based on the chosen audience option.
+             * Audience selection is only enabled if the selective audience option is chosen.
+             */
+            function toggleSelect() {
+                let selected_value = $("input[name='audienceOption.option']:checked").val();
+                if (selected_value === "@AudienceOption.SelectiveAudience") {
+                    $('#audience_select').find("select").removeAttr('disabled');
+                }
+                else {
+                    $('#audience_select').find("select").attr('disabled','disabled');
+                }
+            }
+
+            /* Function to perform an AJAX request for deleting a post.
+            *  It displays a confirmation modal before performing the actual delete.
+            *  */
+            function performDelete() {
+                /* Get the Post ID from the post form */
+                @postForm("postID").value.map { foundID =>
+                {
+                    setupAjax()
+
+                    let postID = @foundID
+                    $.ajax(jsRoutes.controllers.PostController.deletePost(postID))
+                            .done(function (result) {
+                                /* hide the confirmation modal */
+                                $('#deletion-modal').modal('toggle')
+
+                                /* reroute to the user profile on success */
+                                /* message query string will cause the deletion message to be shown on the next page,
+                                 * the message can contain blank spaces so it has to URI encoded.  */
+                                window.location="@routes.UserController.showProfile(UserSession.getCurrentUserName(session))"
+                                        + "?@Global.QUERY_MESSAGE_KEY="+ encodeURI(result)
+                            })
+                            .fail(function (jqXHR, textStatus, errorThrown) {
+                                /* hide the confirmation modal */
+                                $('#deletion-modal').modal('toggle')
+
+                                alert("Something went wrong. Please try again!")
+                            });
+                }
+                }
+            }
+
+            $(document).ready(function(){
+                toggleSelect()
+
+                /* the select field is enabled/disabled, based on the audience option radio buttons */
+                $('#audience_radio').change(toggleSelect);
+
+                /* show a picture preview if a valid image file is selected */
+                $('#picture').change(function(event) {
+                    let file = event.target.files[0], preview = $('#picture-preview'), noFileSelected = true
+                    if (file) {
+                        let contentTypes = "@Post.getSupportedFileTypes().mkString(",")"
+                        if (contentTypes.split(",").includes(file.type)) {
+                            let createdSrc = URL.createObjectURL(file)
+                            preview.attr("src", createdSrc);
+                            preview.removeClass("hide");
+                            preview.onload = function () {
+                                URL.revokeObjectURL(createdSrc) // free up memory
+                            }
+
+                            noFileSelected = false
+                        }
+                    }
+
+                    /* hide the picture preview if no valid image file is selected
+                       or show the old post picture if there was one */
+                    if (noFileSelected) {
+                        @if(oldPicturePath.isEmpty) {
+                            preview.removeAttr("src");
+                            preview.addClass("hide")
+                        } else {
+                            preview.attr("src", "@routes.Assets.versioned(oldPicturePath)");
+                            preview.removeClass("hide");
+                        }
+                    }
+                });
+            });
+    </script>
+}
+
+@main(s"Edit Post", scripts = scripts) {
+
+    <div id="share-post-form-wrapper" class="main-form-wrapper container">
+
+        <h2>Share a picture</h2>
+
+        @* General messages can be shown through flashing *@
+        <div class="global-form-messages">
+        @request.flash.data.map { case (name, value) =>
+            <div class="global-form-message global-form-@name.toLowerCase()">
+                @value
+            </div>
+        }
+        </div>
+
+        @* Global errors are not tied to any particular form field *@
+        @if(postForm.hasGlobalErrors) {
+            <div class="global-form-errors">
+                ERRORS:
+                @postForm.globalErrors.map { error: FormError =>
+                    <div class="global-error">
+                        @error.message
+                    </div>
+                }
+            </div>
+        }
+
+        @* Create/Edit Post form with CSRF
+        * Use multipart/form-data encoding for easy handling of the uploaded file
+        *@
+        @b3.vertical.formCSRF(postUrl,
+            Symbol("id") -> "share-post-form",
+            Symbol("enctype") -> "multipart/form-data") { implicit vfc =>
+
+            @b3.hidden(postForm("postID"))
+            @b3.hidden(postForm("posterName"))
+
+            @* Hide the picture preview field if we don't have a post picture yet
+               (i.e. during post creation, not modification) *@
+            @if(oldPicturePath.isEmpty) {
+                @b3.file(postForm("picture"),
+                    Symbol("accept") -> "image/png, image/gif, image/jpeg",
+                    Symbol("required") -> "true", // include HTML validation for file input as well
+                    '_label -> "Picture"
+                )
+
+                <img id="picture-preview" src="" class="hide" alt="Image Preview"/>
+            } else {
+                @b3.file(postForm("picture"),
+                    Symbol("accept") -> "image/png, image/gif, image/jpeg",
+                    '_label -> "Picture"
+                )
+
+                <img id="picture-preview" src="@routes.Assets.versioned(oldPicturePath)" alt="Image Preview"/>
+            }
+
+            @b3.textarea(postForm("description"),
+                Symbol("label") -> "description",
+                Symbol("placeholder") -> "Describe your picture to the world!",
+                '_label -> "Description",
+                'rows -> 5,
+                'cols -> 60,
+                '_showConstraints -> false
+            )
+
+            @b3.date(postForm("postDate"),
+                Symbol("label") -> "date",
+                '_label -> "Date",
+                '_showConstraints -> false
+            )
+
+            @b3.radio(postForm("audienceOption.option"),
+                options=audienceOptions,
+                '_id -> "audience_radio", // explicit id for easy access in JavaScript
+                '_label -> "Audience Options",
+                '_showConstraints -> false
+            )
+
+            @b3.select(postForm("audienceOption.audience"),
+                options = userOptions,
+                'multiple -> true, // allow multiselect
+                '_id -> "audience_select", // explicit id for easy access in JavaScript
+                '_hiddenLabel -> "Audience",
+                '_showConstraints -> false
+            )
+
+            <div class="form-btns-wrapper">
+                @b3.submit(
+                    '_class -> "submit-wrapper", // form-group class
+                    'class -> "btn btn-primary btn-submit" // submit button class
+                ){ Share }
+
+                @* a delete button is added if used as a Post edit form (and not for Post creation) *@
+                @if(addDeleteBtn) {
+                    @b3.button(
+                        Symbol("data-toggle") -> "modal",
+                        Symbol("data-target") -> "#deletion-modal",
+                        '_class -> "delete-wrapper",
+                        'class -> "btn btn-danger"
+                    ) { Delete }
+                } else {}
+        </div>
+
+        }
+
+    </div>
+
+    @if(addDeleteBtn) {
+
+        @* Confirmation modal shown before deletion, deletion is triggered on confirmation *@
+        <div class="modal fade" id="deletion-modal" tabindex="-1" role="dialog" aria-labelledby="deletion-modal-label" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Are you sure you want to delete this post?</h3>
+                    </div>
+                    <div class="modal-body">
+
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="performDelete()">Delete Post</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+

@@ -1,0 +1,34 @@
+@* View showing a form for adding comments to a post.
+* - form: the comment form
+* - postURL: the URL used for form submission
+* - post: the post to which the comment will be added
+*@
+@(form: Form[Comment], postUrl: Call, post : Post)(implicit request: RequestHeader, messagesProvider: MessagesProvider, flash: Flash, session: Session)
+
+<div id="add-post-comment-form">
+
+    @b3.vertical.formCSRF(postUrl,
+        Symbol("id") -> "add-post-comment-form") { implicit vfc =>
+
+        @b3.textarea(
+            form("contents"),
+            Symbol("placeholder") -> "Write a comment",
+            Symbol("id") -> "contents",
+            '_hiddenLabel -> "Add Comment",
+            'rows -> 2,
+            'cols -> 60,
+            '_showConstraints -> false
+        )
+
+        @b3.hidden("postID",
+            Symbol("id") -> "postID",
+            'value -> post.postID)
+
+        @b3.submit(
+            '_class -> "submit-wrapper", // form-group class
+            'class -> "btn btn-primary btn-submit" // submit button class
+        ){ Add Comment }
+
+    }
+
+</div>

@@ -1,0 +1,135 @@
+@* Detailed view of a post with a form for adding comments to that post
+* - post: post to show the details of
+* - commentForm: form for adding comments to the post
+* - commentPostURL: the URL used for form submission (currently unused, since comments are added via AJAX)
+*@
+@(post: Post, commentForm: Form[Comment], commentPostURL: Call)(implicit request: RequestHeader, messagesProvider: MessagesProvider, flash: Flash, session: Session)
+
+@scripts = {
+    <script type="text/javascript">
+            $(document).ready(function() {
+                activateLikeBtns()
+
+                /* Show modal with the original sized picture when clicking on the picture */
+                $("#post-picture").click(function () {
+                    let imageModal = $('#image-modal')
+                    /* 30px are added to the natural width in order to allow 15px padding left and right */
+                    imageModal.find(".modal-dialog").attr("style", "width:"+(this.naturalWidth+30)+"px")
+                    imageModal.modal('show');
+                });
+
+                /* Submit the form for adding comments via AJAX instead of the default form submission,
+                 * so we can immediately update the list of comments without a page reload.
+                 */
+                $('#add-post-comment-form').submit(function(e) {
+                    e.preventDefault(); /* Prevent the default form submission */
+
+                    setupAjax()
+
+                    /* Add the comment via an AJAX call */
+                    let postID = @post.postID
+                    $.ajax(
+                            {
+                                url: jsRoutes.controllers.PostController.addComment(postID).url,
+                                type: "POST",
+                                data: {contents : $("#contents").val()}, /* Get the needed form data */
+                                success: function (data) {
+                                    /* update the list of comments */
+                                    $("#post-comments").html(data)
+                                    $("#contents").val('')
+                                },
+                                error: function () {
+                                    alert("Something went wrong. Please try again!")
+                                }
+                            });
+                })
+            });
+    </script>
+}
+
+@main("Post Details", scripts = scripts) {
+
+    @* an option for editing/deleting the Post is added if it's the current User's own Post *@
+    <div class="wrapper">
+    @defining(post.posterName == UserSession.getCurrentUserName(session)) { isPostOfCurrentUser =>
+        <div id="post-@post.postID" class="row post-details-row">
+
+            <div class="row post-details-upper-row">
+                <div class="col-md-6 added-by-cell">
+                    <div class="added-by-container">
+                        Added on @post.getFormattedPostDate() by
+                        @if(isPostOfCurrentUser) {
+                            <em>you</em> (<a href="@routes.UserController.showProfile(post.posterName)">@post.posterName</a>)
+                        } else {
+                            <a href="@routes.UserController.showProfile(post.posterName)">@post.posterName</a>
+                        }
+                    </div>
+                </div>
+                <div class="col-md-3 likes-modify-cell">
+                    <div class="likes-cell">
+                    @posts.like(post)
+                    </div>
+                    @if(isPostOfCurrentUser) {
+                        <div class="modify-cell">
+                            <a href="@routes.PostController.editPost(post.postID)">edit/delete</a>
+                        </div>
+                    } else { }
+                </div>
+                <div class="col-md-3">
+                </div>
+            </div>
+
+            <div class="row post-details-bottom-row">
+                <div class="col-md-9 post-details-bottom-left-cell">
+                    <div class="post-picture-container">
+                        <img id="post-picture"
+                        src="@routes.Assets.versioned(s"${FileStorage.UserPicturesDir}/${post.posterName}/${post.pictureFileName}")"
+                        alt="Post Picture"/>
+                    </div>
+                </div>
+
+                <div class="col-md-3 post-details-bottom-right-cell">
+                    <div class="post-description-cell">
+                        <div class="emphasized-label">
+                            Description
+                        </div>
+                        <div class="post-description">
+                        @post.description
+                        </div>
+                    </div>
+
+                    <div class="post-comments-cell">
+                        <div class="emphasized-label">
+                            Comments:
+                        </div>
+                        <div id="post-comments" class="post-comments-container">
+                        @posts.commentsList(post.comments)
+                        </div>
+                    </div>
+
+                    <div class="post-add-comment-cell">
+                    @posts.addComment(commentForm, commentPostURL, post)
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    }
+    </div>
+
+    @* Model for showing the picture in its original size *@
+    <div class="modal fade" id="image-modal" tabindex="-1" role="dialog" aria-labelledby="image-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h3 class="modal-title" id="image-modal-label">Original Picture</h3>
+                </div>
+                <div class="modal-body">
+                    <img id="post-picture-modal" src="@routes.Assets.versioned(s"${FileStorage.UserPicturesDir}/${post.posterName}/${post.pictureFileName}")"
+                    alt="Post Picture"/>
+                </div>
+            </div>
+        </div>
+    </div>
+}

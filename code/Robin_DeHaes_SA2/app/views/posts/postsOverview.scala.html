@@ -1,0 +1,27 @@
+@* View showing an overview of all posts with an option to sort them
+* - postsList: the list of posts to show
+* - maxComments: the maximum number of comments to show per post
+*@
+@(postsList: List[Post], maxComments: Int)(implicit request: RequestHeader, messagesProvider: MessagesProvider, flash: Flash, session: Session)
+
+@* Add function for sorting the posts in the postsListWithSorter view *@
+@scripts = {
+    <script type="text/javascript">
+            function sortPosts(sortingOption) {
+                setupAjax()
+
+                /* get the sorted posts for the overview via AJAX and set them in the overview */
+                $.ajax(jsRoutes.controllers.PostController.getSortedPosts(sortingOption, true))
+                        .done(function (data) {
+                            $('#sorted-posts-overview').html(data)
+
+                            activateLikeBtns() /* make the like buttons clickable (instead of just showing the counts) */
+                        })
+                        .fail(function (jqXHR, textStatus, errorThrown) {
+                            alert("Something went wrong. Please refresh the page!")
+                        });
+            }
+    </script>
+}
+
+@posts.postsListWithSorter("Overview", postsList, maxComments, scripts = scripts)

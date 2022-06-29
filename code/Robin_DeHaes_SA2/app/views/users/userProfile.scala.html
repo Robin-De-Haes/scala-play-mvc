@@ -1,0 +1,29 @@
+@* View showing a user's profile page.
+ * - user: the user of whom the profile is shown
+ * - postsList: the posts of the user to be shown
+ * - maxComments: the maximum number of comments to show per post
+ *@
+@(user : User, postsList: List[Post], maxComments: Int)(implicit request: RequestHeader, messagesProvider: MessagesProvider, flash: Flash, session: Session)
+
+@* Add function for sorting the posts in the postsListWithSorter view *@
+@scripts = {
+    <script type="text/javascript">
+            function sortPosts(sortingOption) {
+                setupAjax()
+
+                /* get the sorted posts of the user via AJAX and set them in the overview */
+                let profileUserName = '@user.username'
+                $.ajax(jsRoutes.controllers.UserController.getSortedProfilePosts(profileUserName, sortingOption, true))
+                        .done(function (data) {
+                            $('#sorted-posts-overview').html(data)
+
+                            activateLikeBtns() /* make the like buttons clickable (instead of just showing the counts) */
+                        })
+                        .fail(function (jqXHR, textStatus, errorThrown) {
+                            alert("Something went wrong. Please refresh the page!")
+                        });
+            }
+    </script>
+}
+
+@posts.postsListWithSorter(s"${user.username}'s Profile", postsList, maxComments, showTitle = true, scripts = scripts)

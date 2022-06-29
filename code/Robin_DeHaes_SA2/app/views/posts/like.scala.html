@@ -1,0 +1,17 @@
+@* View showing a button for liking/unliking a post and the current like count
+* - post: post to add the like button for
+*@
+@(post : Post)(implicit request: RequestHeader, messagesProvider: MessagesProvider, flash: Flash, session: Session)
+
+@* Tooltip and classes depend on whether the user has currently liked the post or not *@
+@defining(post.likedBy(UserSession.getCurrentUserName(session))) { liked =>
+    <div id="like-post-@post.postID" class="like-btn @if(liked) {liked}" data-post-id="@post.postID">
+        <img class="like-icon" alt="like button" src="@routes.Assets.versioned(s"images/like.png")"
+        data-toggle="tooltip" data-placement="bottom"
+            @if(liked) {
+                title="Unlike this post"
+            } else { title="Like this post" }
+        >
+        <span class="like-count">@post.getLikeCount</span>
+    </div>
+}

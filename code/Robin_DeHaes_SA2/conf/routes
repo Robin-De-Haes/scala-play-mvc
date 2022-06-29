@@ -1,0 +1,36 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# https://www.playframework.com/documentation/latest/ScalaRouting
+# ~~~~
+
+GET    /                          controllers.HomeController.index
+GET    /index                     controllers.HomeController.index
+
+# user authentication
+GET    /login                     controllers.AuthenticationController.showLoginForm
+POST   /doLogin                   controllers.AuthenticationController.processLoginAttempt
+GET    /logout                    controllers.AuthenticationController.logout
+
+# user registration, viewing and manipulation
+GET    /register                  controllers.UserController.showRegistrationForm
+POST   /doRegister                controllers.UserController.processRegistrationAttempt
+GET    /sort-profile-posts/:user  controllers.UserController.getSortedProfilePosts(user : String, sortOn: String, postsOnly: Boolean)
+GET    /user/:user                controllers.UserController.showProfile(user: String)
+
+# post creation, viewing and manipulation
+GET    /posts/new                 controllers.PostController.newPost
+GET    /posts/explore             controllers.PostController.showPostsOverview
+GET    /posts/:postID             controllers.PostController.showPost(postID: Long)
+GET    /posts/:postID/edit        controllers.PostController.editPost(postID: Long)
+GET    /sort-posts                controllers.PostController.getSortedPosts(sortOn: String, postsOnly: Boolean)
+POST   /posts/share               controllers.PostController.sharePost
+POST   /posts/process-edit        controllers.PostController.processEditPost
+DELETE /posts/:postID/delete      controllers.PostController.deletePost(postID: Long)
+POST   /posts/:postID/comment     controllers.PostController.addComment(postID: Long)
+POST   /posts/:postID/like        controllers.PostController.toggleLike(postID: Long)
+
+# map static resources from the /public folder to the /assets URL path
+GET    /assets/*file              controllers.Assets.versioned(path="/public", file: Asset)
+
+# javascript router
+GET    /javascriptRoutes          controllers.JavaScriptRouteController.javascriptRoutes

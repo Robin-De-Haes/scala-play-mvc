@@ -1,0 +1,11 @@
+@* View showing a list of comments
+* - commentsList: the list of comments to show
+*@
+@(commentsList: List[Comment])(implicit request: RequestHeader, messagesProvider: MessagesProvider, flash: Flash, session: Session)
+
+@for(comment <- commentsList) {
+    <div class="post-comment">
+        <span class="emphasized-label inline">@comment.commenterName:</span>
+        <span>@comment.contents</span>
+    </div>
+}

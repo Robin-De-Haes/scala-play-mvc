@@ -1,0 +1,343 @@
+/* general */
+body {
+    padding-bottom: 20px;
+}
+
+.wrapper{
+    width:70%;
+    margin:0 auto;
+    box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    padding:20px 0;
+}
+
+.wrapper:after{
+    content:" ";
+    display:block;
+    clear:both;
+}
+
+h1 {
+    text-align: center;
+}
+
+h3.subheader {
+    text-align: center;
+}
+
+.global-message {
+    text-align: center;
+    font-size: 1.1em;
+}
+
+/* forms */
+input[type=text], input[type=password] {
+    padding-left: 5px;
+    text-align: left;
+}
+
+div.main-form-wrapper {
+    -webkit-box-shadow: 0 0 10px rgba(46, 84, 129, .3);
+    -moz-box-shadow: 0 0 10px rgba(46, 84, 129, .3);
+    box-shadow: 0 0 10px rgba(46, 84, 129, .3);
+    border: solid 1px #839bb7;
+    outline: none;
+    -webkit-transition: border linear .2s,
+    box-shadow linear .2s;
+    -moz-transition: border linear .2s,
+    box-shadow linear .2s;
+    transition: border linear .2s, box-shadow linear .2s;
+
+    width: 40%;
+    min-width: 200px;
+    max-width: 360px;
+    padding: 20px;
+}
+
+div.main-form-wrapper h2 {
+    width: 100%;
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin: 0 0 15px 0;
+    color: #cccccc;
+}
+
+div.main-form-wrapper input {
+    width: 100%
+}
+
+div.main-form-wrapper input[type='radio'], div.main-form-wrapper input[type='date'] {
+    width: auto
+}
+
+.form-btns-wrapper {
+    text-align: center;
+}
+
+.form-btns-wrapper .form-group {
+    display:inline-block;
+    width: 100%;
+    max-width: 160px;
+}
+
+.form-btns-wrapper .btn-submit, .form-btns-wrapper .btn-danger {
+    width: 100%;
+}
+
+.main-form-wrapper .invalid-feedback, .main-form-wrapper .has-error .help-block {
+    margin-left: 5px;
+    color: red;
+    font-size: 0.8em;
+}
+
+.main-form-wrapper .global-form-errors {
+    margin-top: 5px;
+    margin-bottom: 10px;
+    color: red;
+    text-align: center;
+    font-size: 1.1em;
+}
+
+.main-form-wrapper .global-form-messages {
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.main-form-wrapper .global-error {
+    color: red;
+    font-size: 1.1em;
+}
+
+.form-vertical .form-group div.radio:nth-of-type(1) {
+    margin-top: 0;
+}
+
+/* Share post */
+#share-post-form-wrapper {
+    min-width: 350px;
+    max-width: 500px;
+}
+
+#share-post-form-wrapper.btn-submit {
+    max-width: 200px;
+}
+
+#audience_radio {
+    margin-bottom: 5px;
+}
+
+#audience_select {
+    margin-left: 20px;
+}
+
+#audience_select select {
+    width: auto;
+}
+
+#picture-preview {
+    display: inline-block;
+    max-height: 200px;
+    max-width: 100%;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
+/* Post Summary */
+.added-by-cell {
+    text-align: right;
+}
+
+.emphasized-label {
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.emphasized-label.inline {
+    width: auto;
+    margin-bottom: 0;
+    font-size: 1em;
+}
+
+.post-row {
+    -webkit-box-shadow: 0 0 10px rgba(46, 84, 129, .3);
+    -moz-box-shadow: 0 0 10px rgba(46, 84, 129, .3);
+    box-shadow: 0 0 10px rgba(46, 84, 129, .3);
+    border: solid 1px #839bb7;
+    outline: none;
+    -webkit-transition: border linear .2s,
+    box-shadow linear .2s;
+    -moz-transition: border linear .2s,
+    box-shadow linear .2s;
+    transition: border linear .2s, box-shadow linear .2s;
+
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.post-upper-row {
+    padding: 10px;
+}
+
+.post-bottom-row {
+    padding: 0px 10px 10px;
+}
+
+.post-picture-cell {
+    text-align:center
+}
+
+.post-comments-more-cell, .post-description-cell {
+    max-height: 300px;
+}
+
+.post-comments-more-cell, .post-description-cell {
+    height: 300px;
+}
+
+.no-posts-message {
+    font-style: italic;
+    text-align:center;
+}
+
+.post-description-cell, .post-comments-cell {
+    overflow: hidden;
+}
+
+.likes-modify-cell .likes-cell, .likes-modify-cell .modify-cell {
+    display: inline-block
+}
+
+.likes-modify-cell .likes-cell {
+    margin-right: 50px;
+}
+
+.post-comments-cell {
+    height: 90%;
+}
+
+.post-more-cell {
+    height: 10%;
+}
+
+.post-picture-cell img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 5px;
+    vertical-align: middle;
+}
+
+.post-picture-container {
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    height: 300px;
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+}
+
+/* likes */
+.like-btn .like-icon {
+    height:20px;
+    width:20px;
+}
+
+.like-btn .like-count {
+    font-size: 0.9em;
+    line-height: 20px;
+}
+
+.like-btn.activated .like-icon {
+    cursor: pointer;
+}
+
+.like-btn.activated .like-icon:hover {
+    border-radius: 10px;
+    background-color: #ADD8E6;
+}
+
+.like-btn.liked .like-icon {
+    border-radius: 10px;
+    background-color: #ADD8E6;
+}
+
+.like-btn.activated.liked .like-icon:hover {
+    border-radius: 0;
+    background-color: transparent;
+}
+
+/* post details */
+.post-details-upper-row .added-by-container, .post-details-upper-row .likes-cell {
+    margin-left: 15px;
+    text-align: left;
+}
+
+.post-details-bottom-row .post-picture-container img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.post-details-bottom-row .post-comments-more-cell, .post-details-bottom-row  .post-description-cell {
+    height: auto;
+    margin-bottom: 15px;
+}
+
+.post-details-bottom-row .post-add-comment-cell {
+    margin-top: 15px;
+}
+
+.post-details-bottom-row .post-description-cell .post-description {
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+.post-details-bottom-row .post-comments-container {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.post-details-bottom-row .post-picture-container {
+    height: 100%;
+}
+.post-details-bottom-row .post-picture-container img {
+    max-height: 500px;
+    cursor: pointer;
+}
+
+.post-details-bottom-row #add-post-comment-form #contents {
+    margin-bottom: 5px;
+}
+
+.post-details-bottom-row #add-post-comment-form .submit-wrapper {
+    text-align: right;
+}
+
+.post-details-bottom-row #add-post-comment-form .btn-submit {
+    display:inline-block;
+}
+
+#image-modal .modal-title, #image-modal .modal-body {
+    text-align: center;
+}
+
+#image-modal .modal-dialog {
+    max-width: 100%;
+}
+
+#image-modal #post-picture-modal {
+    max-width: 100%;
+}
+
+/* media queries */
+@media screen and (max-width: 1024px) {
+    .post-comments-more-cell, .post-description-cell {
+        height: 100%;
+    }
+}

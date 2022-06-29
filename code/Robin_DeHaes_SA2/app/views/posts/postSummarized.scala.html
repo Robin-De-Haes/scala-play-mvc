@@ -1,0 +1,66 @@
+@* View showing a summarized version of a post, intended to be used in post overviews
+* - post: the post to be summarized
+* - maxComments: the maximum number of comments to show per post
+*@
+@(post: Post, maxComments: Int)(implicit request: RequestHeader, messagesProvider: MessagesProvider, flash: Flash, session: Session)
+
+    @* an option for editing/deleting the Post is added if it's the current User's own Post *@
+    @defining(post.posterName == UserSession.getCurrentUserName(session)) { isPostOfCurrentUser =>
+        <div id="post-@post.postID" class="row post-row">
+
+            <div class="row post-upper-row">
+                <div class="col-md-9 added-by-cell">
+                    Added on @post.getFormattedPostDate() by
+                    @if(isPostOfCurrentUser) {
+                        <em>you</em> (<a href="@routes.UserController.showProfile(post.posterName)">@post.posterName</a>)
+                    } else {
+                        <a href="@routes.UserController.showProfile(post.posterName)">@post.posterName</a>
+                    }
+                </div>
+                @if(isPostOfCurrentUser) {
+                    <div class="col-md-3 likes-modify-cell">
+                        <div class="likes-cell">
+                        @posts.like(post)
+                        </div>
+                        <div class="modify-cell">
+                            <a href="@routes.PostController.editPost(post.postID)">edit/delete</a>
+                        </div>
+                    </div>
+                } else {
+                    <div class="col-md-3 likes-cell">
+                    @posts.like(post)
+                    </div>
+                }
+            </div>
+
+            <div class="row post-bottom-row">
+
+                <div class="col-md-3 post-description-cell">
+                    <div class="emphasized-label">
+                        Description
+                    </div>
+                    <div class="post-description">
+                    @post.description
+                    </div>
+                </div>
+                <div class="col-md-6 post-picture-cell">
+                    <div class="post-picture-container">
+                        <img src="@routes.Assets.versioned(s"${FileStorage.UserPicturesDir}/${post.posterName}/${post.pictureFileName}")" alt="Post Picture"/>
+                    </div>
+                </div>
+                <div class="col-md-3 post-comments-more-cell">
+                    <div class="post-comments-cell">
+                        <div class="emphasized-label">
+                            Comments:
+                        </div>
+                        @defining(post.comments.take(maxComments)) { comments =>
+                            @posts.commentsList(comments)
+                        }
+                    </div>
+                    <div class="post-more-cell">
+                        <a href="@routes.PostController.showPost(post.postID)">See more</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }

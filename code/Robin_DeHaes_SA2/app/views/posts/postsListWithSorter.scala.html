@@ -1,0 +1,77 @@
+@* View showing a list of posts with an option to sort them
+* - title: a 'String' for the title of the page (passed to the main template)
+* - postsList: the list of posts to show
+* - maxComments: the maximum number of comments to show per post
+* - scripts: Any additional scripts to be included on the page (expected to at least contain a sortPosts function)
+* - showTitle: a Boolean stating whether the title should visually be shown on the page (passed to the main template)
+*@
+@(title: String, postsList: List[Post], maxComments: Int, scripts: Html, showTitle : Boolean = false)(implicit request: RequestHeader, messagesProvider: MessagesProvider, flash: Flash, session: Session)
+
+@* Add sorting behavior to the sorting options.
+ * The function to perform the actual sorting is expected to have been provided via the scripts parameter.
+ *@
+@additionalScripts = {
+    @scripts
+
+    <script type="text/javascript">
+            $(document).ready(function(){
+                activateLikeBtns() /* make the like buttons clickable (instead of just showing the counts) */
+
+                /* change sorting option for the overview */
+                $("button.sorting-option").click(function() {
+                    $("button.sorting-option").removeClass("active")
+                    $(this).addClass("active")
+                    sortPosts($(this).attr('data-sort-option'))
+                });
+            });
+    </script>
+}
+
+@main(title, showTitle = showTitle, scripts = additionalScripts) {
+
+    <div class="wrapper">
+
+        <div class="global-messages">
+        @request.flash.data.map { case (name, value) =>
+            <div class="global-message global-@name.toLowerCase()">
+                @value
+            </div>
+        }
+        </div>
+
+        @if(postsList.nonEmpty) {
+            @* sorting options *@
+            <div class="sort-posts-btn-group btn-group" role="group" aria-label="...">
+                <button id="sorting-option-date" type="button" class="btn btn-default active sorting-option"
+                data-sort-option="@PostDao.SortingField_Date">
+                    Date</button>
+                <button id="sorting-option-likes" type="button" class="btn btn-default sorting-option"
+                data-sort-option="@PostDao.SortingField_LikeCount">
+                    Likes</button>
+            </div>
+
+            @* needed for performing certain AJAX calls (e.g. liking posts) *@
+            @helper.CSRF.formField
+
+            @* sorted overview of posts *@
+            <div id="sorted-posts-overview" class="container-fluid posts-container">
+                @posts.postsList(postsList, maxComments)
+            </div>
+        } else {
+
+            @* message in case no (visible) posts are available *@
+            <div class="no-posts-message">
+                There are currently no posts for you to view.
+                @if(!UserSession.loggedIn(session)) {
+                    <div class="login-register">
+                        <a href="@routes.UserController.showRegistrationForm()">Registering</a>
+                        and/or
+                        <a href="@routes.AuthenticationController.showLoginForm()">logging in</a>
+                        might allow you to view more posts.
+                    </div>
+                }
+            </div>
+        }
+
+    </div>
+}
